@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="eng">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1, width=device-width, shrink-to-fit=no"
+    />
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f0f0f0;
+      }
+
+      .login-container {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        width: 300px;
+      }
+
+      h2 {
+        text-align: center;
+      }
+
+      .form-group {
+        margin-bottom: 15px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      input[type="text"],
+      input[type="password"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+
+      button {
+        width: 100%;
+        padding: 10px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-container">
+      <form action="/login" method="post">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="form-group">
+              <input
+                autocomplete="off"
+                autofocus
+                class="form-control mx-auto w-auto"
+                id="username"
+                name="username"
+                placeholder="Username"
+                type="text"
+              />
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="form-group">
+              <input
+                class="form-control mx-auto w-auto"
+                id="password"
+                name="password"
+                placeholder="Password"
+                type="password"
+              />
+            </div>
+          </div>
+          <button class="btn btn-primary" type="submit">Log In</button>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>

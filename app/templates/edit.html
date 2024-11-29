@@ -1,0 +1,134 @@
+{% extends "layout.html" %}
+{% block body %}
+<div id="main-body" class="main-body">
+  <div id="edit-form" class="form-container contact-wrap w-100 p-md-5 p-4 shadow-lg mb-4">
+    <h3 class="mb-4">Edit details 📝</h3>
+      <!-- Form for email entry -->
+      <form action="{{ url_for('edit') }}" method="get">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="form-group">
+              <input
+                class="form-control"
+                id="email"
+                name="email"
+                placeholder="Enter your email to edit"
+                type="email"
+                required
+              />
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="form-group">
+              <button id="submit-btn" class="btn btn-secondary ld-ext-right" type="submit">
+                Search
+                <div class="ld ld-ring ld-spin" style="font-size: 1.2rem"></div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {% if user %}
+  <!-- Form for editing user data -->
+  <div id="details" class="form-container contact-wrap w-100 p-md-5 p-4 shadow-lg mb-4 hidden">
+    <h3 class="mb-4">Edit details 📝</h3>
+    <form action="{{ url_for('edit') }}" method="post">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="form-group">
+            <input
+              class="form-control"
+              id="name"
+              name="name"
+              placeholder="Full Name"
+              type="text"
+              value="{{ user[0] }}"
+              required
+            />
+          </div>
+        </div>
+        <div class="col-md-12">
+          <div class="form-group">
+            <input
+              class="form-control"
+              id="birthday"
+              name="birthday"
+              placeholder="YYYY-MM-DD"
+              maxlength="10"
+              type="text"
+              value="{{ user[1] }}"
+              required
+            />
+          </div>
+        </div>
+        <div class="col-md-12">
+          <div class="form-group">
+            <select class="form-control" name="part" id="part">
+              <option value="soprano" {% if user[2] == "soprano" %}selected{% endif %}>Soprano</option>
+              <option value="alto" {% if user[2] == "alto" %}selected{% endif %}>Alto</option>
+              <option value="tenor" {% if user[2] == "tenor" %}selected{% endif %}>Tenor</option>
+              <option value="bass" {% if user[2] == "bass" %}selected{% endif %}>Bass</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-12">
+          <div class="form-group">
+            <input
+              class="form-control"
+              id="phone_number"
+              name="phone_number"
+              placeholder="Phone Number"
+              type="text"
+              value="{{ user[3] }}"
+              required
+            />
+          </div>
+        </div>
+        <div class="col-md-12">
+          <div class="form-group">
+            <input
+              class="form-control"
+              id="email"
+              name="email"
+              placeholder="Enter your email to edit"
+              type="email"
+              value="{{ user[4] }}"
+              required
+            />
+          </div>
+        </div>
+        <div class="col-md-12">
+          <div class="form-group">
+            <input
+              class="form-control"
+              id="school_address"
+              name="school_address"
+              placeholder="Location"
+              type="text"
+              value="{{ user[5] }}"
+              required
+            />
+          </div>
+        </div>
+        <div class="col-md-12">
+          <div class="form-group">
+            <button id="submit-btn" class="btn btn-secondary ld-ext-right" type="submit">
+              Submit
+              <div class="ld ld-ring ld-spin" style="font-size: 1.2rem"></div>
+            </button>
+            <button id="delete-btn" class="delete btn btn-secondary ld-ext-right delete">
+              <a id="delete"  href="/delete?email={{ user[4] }}">Delete <i class="fa-solid fa-trash"></i></a>
+              <div class="ld ld-ring ld-spin" style="font-size: 1.2rem"></div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+    {% endif %}
+  </div>
+  <script src="static/js/edit.js"></script>
+</div>
+{% endblock %}
