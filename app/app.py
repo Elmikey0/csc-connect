@@ -42,14 +42,15 @@ def init_db():
             "CREATE TABLE IF NOT EXISTS register (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, birthday DATE NOT NULL, part TEXT NOT NULL, phone_number TEXT NOT NULL, email TEXT NOT NULL UNIQUE, school_address TEXT NOT NULL);"
         )
         db.execute(
-            "CREATE TABLE IF NOT EXISTS users (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL UNIQUE, password TEXT NOT NULL);"
+            "CREATE TABLE IF NOT EXISTS users (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL, password TEXT NOT NULL);"
         )
         db.execute(
             "INSERT OR IGNORE INTO users (username, password) VALUES (?, ?);",
             ("ADMIN", generate_password_hash("CSC@2024@BDAY")),
         )
-
+        db.execute("CREATE TABLE IF NOT EXISTS admin_email (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL, email TEXT NOT NULL UNIQUE);")
         connection.commit()
+        
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:
@@ -73,35 +74,37 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/index", methods=["POST"])
+@app.route("/index", methods=["GET", "POST"])
 def names():
+    if request.method == "POST":
+        name = request.form.get("name")
+        birthday = request.form.get("birthday")
+        part = request.form.get("part")
+        number = request.form.get("phone_number")
+        email = request.form.get("email").lower()
+        location = request.form.get("school_address")
 
-    name = request.form.get("name")
-    birthday = request.form.get("birthday")
-    part = request.form.get("part")
-    number = request.form.get("phone_number")
-    email = request.form.get("email").lower()
-    location = request.form.get("school_address")
+        connection = sqlite3.connect(db_birthday)
+        db = connection.cursor()
+        
+        db.execute("SELECT email FROM register WHERE email = ?", (email,))
+        existing_email = db.fetchone()
+        
+        if existing_email:
+            flash("Email already exist, use a different email❗")
 
-    connection = sqlite3.connect(db_birthday)
-    db = connection.cursor()
-    
-    db.execute("SELECT email FROM register WHERE email = ?", (email,))
-    existing_email = db.fetchone()
-    
-    if existing_email:
-        flash("Email already exist, use a different email❗")
+        else:
+            db.execute(
+                "INSERT INTO register (name, birthday, part, phone_number, email, school_address) VALUES (?, ?, ?, ?, ?, ?)",
+                (name, birthday, part, number, email, location),
+            )
 
+        connection.commit()
+        connection.close()
+        flash("User details recorded successfully!")
+        return redirect(url_for("index"))
     else:
-        db.execute(
-            "INSERT INTO register (name, birthday, part, phone_number, email, school_address) VALUES (?, ?, ?, ?, ?, ?)",
-            (name, birthday, part, number, email, location),
-        )
-
-    connection.commit()
-    connection.close()
-    flash("User details recorded successfully!")
-    return redirect(url_for("index"))
+        return render_template("index.html")
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -249,6 +252,46 @@ def delete():
     flash("User details deleted successfully!")
     return redirect(url_for("admin"))
 
+@app.route("/email", methods=["GET", "POST"])
+def email():
+
+    if not session.get("logged_in"):
+        return redirect(url_for("login"))
+    
+    if request.method == "POST":
+        username = request.form.get("username")
+        email = request.form.get("email").lower()
+
+        try:
+            connection = sqlite3.connect(db_birthday)
+            db = connection.cursor()
+            
+            # Check if email already exists
+            db.execute("SELECT email FROM admin_email WHERE email = ?", (email,))
+            existing_email = db.fetchone()
+        
+            if existing_email:
+                flash("Email already exists, use a different email❗")
+                return render_template("email.html")  # Return if email already exists
+
+            else:
+                # Insert new record
+                db.execute("INSERT INTO admin_email (username, email) VALUES (?, ?)", (username, email,))
+                connection.commit()
+
+        except sqlite3.Error as e:
+            flash(f"An error occurred while processing your request: {str(e)}")
+            return render_template("email.html")
+
+        finally:
+            connection.close()
+        
+        flash("User details recorded successfully!")
+        return redirect(url_for("admin"))
+
+    else:
+        return render_template("email.html")
+
 
 def send_email_notification(subject, message, recipient_email):
     try:
@@ -279,6 +322,8 @@ def check_birthdays():
                 "SELECT name, part, phone_number, school_address, email, birthday FROM register"
             )
             all_users = db.fetchall()
+            db.execute("SELECT username, email FROM admin_email")
+            all_emails = db.fetchall()
 
             # Loop through each user and send birthday email if it's their birthday
             for user in all_users:
@@ -302,16 +347,12 @@ def check_birthdays():
                 celebrant_names = ", ".join([user[0] for user in celebrants[:-1]]) + ", and " + celebrants[-1][0] if len(celebrants) > 1 else celebrants[0][0]  # Create a string of celebrants' names
                 celebrant_info = "\n".join([f"Name: {user[0]}\nPart: {user[1].capitalize()}\nPhone: {user[2]}\nLocation: {user[3]}\n" for user in celebrants])
 
-                for user in all_users:
-                    if user not in celebrants:
-                        message = (f"Hello {user[0]}! \nToday is a special day, and we want to remind you to sing a happy birthday tune "
-                            f"for {celebrant_names}! 🎉 \n\nCelebrants' Info:\n{celebrant_info}\n\nNever forget to reach out, "
-                            "showing them how much you care and make their day shine! ✨")
-                        print(f"Sending message to: {user[4]}")  # Debug statement
-                        send_email_notification("Birthdays are special! 🎂", message, user[4])
-                        time.sleep(1)
-                    else:
-                        print("No birthdays today.")
+                for email in all_emails:
+                    message = (f"Hello {email[0]}! \nToday is a special day, and we want to remind you to sing a happy birthday tune "
+                        f"for {celebrant_names}! 🎉 \n\nCelebrants' Info:\n{celebrant_info}\n\nNever forget to reach out, "
+                        "showing them how much you care and make their day shine! ✨")
+                    print(f"Sending message to: {email[1]}")  # Debug statement
+                    send_email_notification("Birthdays are special! 🎂", message, email[1])
     
             if birthday_count == 0:
                 print("No birthdays found today.")  # Debug statement for no birthdays
@@ -321,7 +362,7 @@ def check_birthdays():
         print(f"An error occurred while checking birthdays: {e}")       
 
 scheduler = BackgroundScheduler()
-scheduler.add_job(lambda: check_birthdays(), 'interval', days=1, start_date='2024-11-28 06:00:00') #check daily
+scheduler.add_job(lambda: check_birthdays(), 'interval', days=1, start_date='2024-11-28 00:00:20') #check daily
 scheduler.start()
 atexit.register(lambda: scheduler.shutdown())
 
