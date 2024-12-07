@@ -10,6 +10,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from apscheduler.schedulers.background import BackgroundScheduler
 import atexit
 import time
+from pytz import timezone
 
 db_birthday = "birthday.db"
 
@@ -310,7 +311,7 @@ def check_birthdays():
     try:
         # Push an application context explicitly
         with app.app_context():  # Ensure we're inside the application context
-            today = datetime.now().date()
+            today = datetime.now(timezone('Africa/Lagos')).date()
             birthday_count = 0 #Initialize birthday variable
             celebrants = []
 
@@ -341,7 +342,6 @@ def check_birthdays():
                     message = (f"Wishing a joyful birthday to you, {user[0]}, our melody-making friend! Your beautiful voice and uplifting spirit bring so much joy to our rehearsals and performances. May this special day be filled with love, music, and all the things that bring smile to your face. Keep shining bright like the star you are!🌟 Enjoy every moment and have a melodious birthday!🎶\n🎈#HappyBirthday{user[0].replace(' ', '')}")
                     print(f"Sending birthday message to: {user[4]}")  # Debug statement
                     send_email_notification("Birthdays are special! 🎂", message, user[4])     
-                    time.sleep(1)
                     
             if birthday_count > 0:
                 celebrant_names = ", ".join([user[0] for user in celebrants[:-1]]) + ", and " + celebrants[-1][0] if len(celebrants) > 1 else celebrants[0][0]  # Create a string of celebrants' names
@@ -362,7 +362,8 @@ def check_birthdays():
         print(f"An error occurred while checking birthdays: {e}")       
 
 scheduler = BackgroundScheduler()
-scheduler.add_job(lambda: check_birthdays(), 'interval', days=1, start_date='2024-11-28 00:00:20') #check daily
+scheduler.configure(timezone=timezone('Africa/Lagos'))
+scheduler.add_job(lambda: check_birthdays(), 'interval', days=1, start_date='2024-11-28 00:00:00', timezone=timezone('Africa/Lagos')) #check daily
 scheduler.start()
 atexit.register(lambda: scheduler.shutdown())
 
