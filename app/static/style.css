@@ -6,6 +6,10 @@
 #admin-email {
   text-decoration: none;
 }
+label {
+  position: relative;
+  z-index: 1;
+}
 .email-div {
   margin-top: 25px;
 }

@@ -42,23 +42,18 @@
               Submit
               <div class="ld ld-ring ld-spin" style="font-size: 1.2rem"></div>
             </button>
+            <button
+              id="delete-btn"
+              class="delete btn btn-secondary ld-ext-right delete"
+            >
+              <a id="delete" href="/delete_admin_email?email={{ user[1] }}"
+                >Delete <i class="fa-solid fa-trash"></i
+              ></a>
+              <div class="ld ld-ring ld-spin" style="font-size: 1.2rem"></div>
+            </button>
           </div>
         </div>
       </div>
-    </form>
-
-    <!-- Delete Form for admin email -->
-    <form action="{{ url_for('delete_admin_email') }}" method="POST">
-      <input type="hidden" name="username" value="{{ user[0] }}" />
-      <input type="hidden" name="email" value="{{ user[1] }}" />
-      <button
-        id="delete-btn"
-        class="btn btn-secondary ld-ext-right"
-        type="submit"
-      >
-        Delete <i class="fa-solid fa-trash"></i>
-        <div class="ld ld-ring ld-spin" style="font-size: 1.2rem"></div>
-      </button>
     </form>
   </div>
 </div>

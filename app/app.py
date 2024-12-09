@@ -253,15 +253,11 @@ def delete():
     flash("User details deleted successfully!")
     return redirect(url_for("admin"))
 
-@app.route("/delete_admin_email", methods=["POST"])
+@app.route("/delete_admin_email")
 def delete_admin_email():
-    username = request.form.get("username")
-    email = request.form.get("email")
+    username = request.args.get("username")
+    email = request.args.get("email")
     
-    if not username or not email:
-        flash("Username and email are required!")
-        return redirect(url_for("email"))
-
     try:
         connection = sqlite3.connect(db_birthday)
         db = connection.cursor()
