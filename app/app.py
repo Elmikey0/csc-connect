@@ -253,6 +253,37 @@ def delete():
     flash("User details deleted successfully!")
     return redirect(url_for("admin"))
 
+@app.route("/delete_admin_email", methods=["POST"])
+def delete_admin_email():
+    username = request.form.get("username")
+    email = request.form.get("email")
+    
+    if not username or not email:
+        flash("Username and email are required!")
+        return redirect(url_for("email"))
+
+    try:
+        connection = sqlite3.connect(db_birthday)
+        db = connection.cursor()
+
+        db.execute("SELECT username, email FROM admin_email WHERE username = ? AND email = ?", (username, email,))
+        admin_email = db.fetchone()
+        
+        if admin_email:
+            db.execute("DELETE FROM admin_email WHERE username = ? AND email = ?", (username, email,))
+            flash("Admin email deleted successfully!")
+            connection.commit()
+            connection.close()
+            return redirect(url_for("admin"))
+
+        else:
+            flash("Incorrect username or email!")
+            return redirect(url_for("email"))
+
+    except Exception as e:
+        flash(f"Error deleting admin email: {e}")
+    return redirect(url_for("admin"))
+
 @app.route("/email", methods=["GET", "POST"])
 def email():
 
