@@ -102,7 +102,7 @@ def names():
 
         connection.commit()
         connection.close()
-        flash("User details recorded successfully!")
+        flash("Birthday recorded successfully!")
         return redirect(url_for("index"))
     else:
         return render_template("index.html")
@@ -171,7 +171,7 @@ def admin():
 
         connection.commit()
         connection.close()
-        flash("User details recorded successfully!")
+        flash("Birthday recorded successfully!")
         return redirect(url_for("admin"))
 
     else:
@@ -200,7 +200,6 @@ def edit():
         phone_number = request.form.get("phone_number")
         school_address = request.form.get("school_address")
 
-        # Step 2: Update user information in the database
         connection = sqlite3.connect(db_birthday)
         db = connection.cursor()
 
@@ -235,7 +234,7 @@ def edit():
             # Render the form with the existing user data
             return render_template("edit.html", user=user_data, email=email)
         else:
-            flash("No user found with that email.")
+            flash("No birthday found with that email.")
             return render_template("edit.html", user=None)
         
 @app.route("/delete")
@@ -253,32 +252,40 @@ def delete():
     flash("User details deleted successfully!")
     return redirect(url_for("admin"))
 
-@app.route("/delete_admin_email")
-def delete_admin_email():
-    username = request.args.get("username")
-    email = request.args.get("email")
+@app.route("/remove", methods=["GET", "POST"])
+def remove():
+    if not session.get("logged_in"):
+        return redirect(url_for("login"))
     
-    try:
-        connection = sqlite3.connect(db_birthday)
-        db = connection.cursor()
+    if request.method == "POST":
+        email = request.form.get("email")
+        if not email:
+            flash("Email is required!")
+            return redirect(url_for("remove"))
 
-        db.execute("SELECT username, email FROM admin_email WHERE username = ? AND email = ?", (username, email,))
-        admin_email = db.fetchone()
-        
-        if admin_email:
-            db.execute("DELETE FROM admin_email WHERE username = ? AND email = ?", (username, email,))
-            flash("Admin email deleted successfully!")
-            connection.commit()
-            connection.close()
-            return redirect(url_for("admin"))
+        try:
+            connection = sqlite3.connect(db_birthday)
+            db = connection.cursor()
+            
+            db.execute("SELECT * FROM admin_email WHERE email = ?", (email,))
+            existing_email = db.fetchone()
+            
+            if existing_email:
+                db.execute("DELETE FROM admin_email WHERE email = ?", (email,))
+                connection.commit()
+                connection.close()
+                flash("Email deleted successfully!")
+                return redirect(url_for("admin"))
+            else:
+                flash("Admin email not found!")
+                return redirect(url_for("remove"))
+        except sqlite3.Error as e:
+            flash(f"Error deleting email: {e}")
+            return redirect(url_for("remove"))
+    else:
+        return render_template("remove_email.html")
 
-        else:
-            flash("Incorrect username or email!")
-            return redirect(url_for("email"))
 
-    except Exception as e:
-        flash(f"Error deleting admin email: {e}")
-    return redirect(url_for("admin"))
 
 @app.route("/email", methods=["GET", "POST"])
 def email():
@@ -300,10 +307,9 @@ def email():
         
             if existing_email:
                 flash("Email already exists, use a different email❗")
-                return render_template("email.html")  # Return if email already exists
+                return render_template("email.html")
 
             else:
-                # Insert new record
                 db.execute("INSERT INTO admin_email (username, email) VALUES (?, ?)", (username, email,))
                 connection.commit()
 
@@ -314,7 +320,7 @@ def email():
         finally:
             connection.close()
         
-        flash("User details recorded successfully!")
+        flash("Admin email recorded successfully!")
         return redirect(url_for("admin"))
 
     else:
@@ -339,7 +345,7 @@ def check_birthdays():
         # Push an application context explicitly
         with app.app_context():  # Ensure we're inside the application context
             today = datetime.now(timezone('Africa/Lagos')).date()
-            birthday_count = 0 #Initialize birthday variable
+            birthday_count = 0 
             celebrants = []
 
             connection = sqlite3.connect(db_birthday)
@@ -366,16 +372,16 @@ def check_birthdays():
                 ):  # user[5] is the birthday
                     celebrants.append(user)
                     birthday_count +=1 #update birthday variable          
-                    message = (f"Wishing a joyful birthday to you, {user[0]}, our melody-making friend! Your beautiful voice and uplifting spirit bring so much joy to our rehearsals and performances. May this special day be filled with love, music, and all the things that bring smile to your face. Keep shining bright like the star you are!🌟 Enjoy every moment and have a melodious birthday!🎶\n🎈#HappyBirthday{user[0].replace(' ', '')}")
+                    message = (f"Wishing a joyful birthday to you, {user[0].strip()}, our melody-making friend!❤️️ \nYour beautiful voice and uplifting spirit bring so much joy to our rehearsals and performances. May this special day be filled with love, music, and all the things that bring smile to your face. Keep shining bright like the star you are!🌟 Enjoy every moment and have a melodious birthday!🎶\n🎈#HappyBirthday{user[0].replace(' ', '')}")
                     print(f"Sending birthday message to: {user[4]}")  # Debug statement
                     send_email_notification("Birthdays are special! 🎂", message, user[4])     
                     
             if birthday_count > 0:
-                celebrant_names = ", ".join([user[0] for user in celebrants[:-1]]) + ", and " + celebrants[-1][0] if len(celebrants) > 1 else celebrants[0][0]  # Create a string of celebrants' names
-                celebrant_info = "\n".join([f"Name: {user[0]}\nPart: {user[1].capitalize()}\nPhone: {user[2]}\nLocation: {user[3]}\n" for user in celebrants])
+                celebrant_names = ", ".join([user[0].strip() for user in celebrants[:-1]]) + ", and " + celebrants[-1][0].strip() if len(celebrants) > 1 else celebrants[0][0].strip()  # Create a string of celebrants' names
+                celebrant_info = "\n".join([f"Name: {user[0].strip()}\nPart: {user[1].capitalize()}\nPhone: {user[2]}\nLocation: {user[3]}\n" for user in celebrants])
 
                 for email in all_emails:
-                    message = (f"Hello {email[0]}! \nToday is a special day, and we want to remind you to sing a happy birthday tune "
+                    message = (f"Hello {email[0].strip()}! \nToday is a special day, and we want to remind you to sing a happy birthday tune "
                         f"for {celebrant_names}! 🎉 \n\nCelebrants' Info:\n{celebrant_info}\n\nNever forget to reach out, "
                         "showing them how much you care and make their day shine! ✨")
                     print(f"Sending message to: {email[1]}")  # Debug statement
@@ -384,7 +390,7 @@ def check_birthdays():
             if birthday_count == 0:
                 print("No birthdays found today.")  # Debug statement for no birthdays
             else:
-                print(f"Total birthdays found today: {birthday_count}")  # Summary statement
+                print(f"Total birthdays found today: {birthday_count}")
     except Exception as e:
         print(f"An error occurred while checking birthdays: {e}")       
 

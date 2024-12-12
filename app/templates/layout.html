@@ -66,6 +66,13 @@
   </head>
 
   <body>
+    {% if get_flashed_messages() %}
+    <header>
+      <div class="alert alert-primary mb-0 text-center" role="alert">
+        {{ get_flashed_messages() | join(" ") }}
+      </div>
+    </header>
+    {% endif %}
     <script src="/static/js/images.js"></script>
     <section id="hero-section" class="ftco-section img bg-hero">
       <div class="container">
@@ -175,14 +182,6 @@
         </div>
       </div>
     </section>
-
-    {% if get_flashed_messages() %}
-    <header>
-      <div class="alert alert-primary mb-0 text-center" role="alert">
-        {{ get_flashed_messages() | join(" ") }}
-      </div>
-    </header>
-    {% endif %}
 
     <!-- Include Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

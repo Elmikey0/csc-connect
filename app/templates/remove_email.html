@@ -4,29 +4,17 @@
     id="edit-form"
     class="form-container contact-wrap w-100 p-md-5 p-4 shadow-lg mb-4"
   >
-    <h3 class="mb-4">Admin Email</h3>
+    <h3 class="mb-4">Delete email</h3>
     <!-- Form for email entry -->
-    <form action="{{ url_for('email') }}" method="post">
+    <form action="/remove" method="post">
       <div class="row">
-        <div class="col-md-12">
-          <div class="form-group">
-            <input
-              class="form-control"
-              id="username"
-              name="username"
-              placeholder="Username"
-              type="text"
-              required
-            />
-          </div>
-        </div>
         <div class="col-md-12">
           <div class="form-group">
             <input
               class="form-control"
               id="email"
               name="email"
-              placeholder="Enter your email"
+              placeholder="Enter email to delete"
               type="email"
               required
             />
@@ -35,18 +23,13 @@
         <div class="col-md-12">
           <div class="form-group">
             <button
-              id="submit-btn"
-              class="btn btn-secondary ld-ext-right"
+              id="delete-btn"
               type="submit"
+              class="btn btn-secondary ld-ext-right"
             >
-              Submit
+              Delete <i class="fa-solid fa-trash"></i>
               <div class="ld ld-ring ld-spin" style="font-size: 1.2rem"></div>
             </button>
-            <div class="email-div">
-              <a id="admin-email" href="{{ url_for('remove') }}"
-                >Delete admin email</a
-              >
-            </div>
           </div>
         </div>
       </div>
