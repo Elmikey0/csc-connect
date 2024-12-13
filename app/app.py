@@ -200,19 +200,27 @@ def edit():
         phone_number = request.form.get("phone_number")
         school_address = request.form.get("school_address")
 
-        connection = sqlite3.connect(db_birthday)
-        db = connection.cursor()
-
-        db.execute(
-            "UPDATE register SET name = ?, birthday = ?, part = ?, phone_number = ?, school_address = ? WHERE email = ?",
-            (name, birthday, part, phone_number, school_address, email)
-        )
-
-        connection.commit()
-        connection.close()
-
-        flash("User details updated successfully!")
-        return redirect(url_for("admin"))
+        try:
+            connection = sqlite3.connect(db_birthday)
+            db = connection.cursor()
+            
+            db.execute("SELECT * FROM register WHERE email = ?", (email,))
+            existing_birthday = db.fetchone()
+            
+            if existing_birthday:
+                db.execute(
+                "UPDATE register SET name = ?, birthday = ?, part = ?, phone_number = ?, school_address = ? WHERE email = ?",
+                (name, birthday, part, phone_number, school_address, email))
+                connection.commit()
+                connection.close()
+                flash("Birthday details updated successfully!")
+                return redirect(url_for("admin"))
+            else:
+                flash("Email can't be changed!")
+                return redirect(url_for("edit"))
+        except sqlite3.Error as e:
+            flash(f"Error deleting email: {e}")
+            return redirect(url_for("edit"))
 
     else:
         # Step 1: Show the edit form with user data if email exists
