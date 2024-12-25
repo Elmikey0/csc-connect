@@ -28,7 +28,7 @@ app.config["MAIL_USE_TLS"] = False
 app.config["MAIL_USE_SSL"] = True
 app.config["MAIL_USERNAME"] = "cscunnchorale@gmail.com"
 app.config["MAIL_PASSWORD"] = (
-    "rqqy ynys dlwt bjpr"  # App password
+    "email password"  # App password
 )
 mail = Mail(app)
 
