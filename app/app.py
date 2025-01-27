@@ -100,9 +100,9 @@ def names():
                 (name, birthday, part, number, email, location),
             )
 
-        connection.commit()
-        connection.close()
-        flash("Birthday recorded successfully!")
+            connection.commit()
+            connection.close()
+            flash("Birthday recorded successfully!")
         return redirect(url_for("index"))
     else:
         return render_template("index.html")
@@ -169,9 +169,9 @@ def admin():
                 (name, birthday, part, number, email, location),
             )
 
-        connection.commit()
-        connection.close()
-        flash("Birthday recorded successfully!")
+            connection.commit()
+            connection.close()
+            flash("Birthday recorded successfully!")
         return redirect(url_for("admin"))
 
     else:
