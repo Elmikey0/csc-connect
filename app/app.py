@@ -32,7 +32,6 @@ app.config["MAIL_PASSWORD"] = (
 )
 mail = Mail(app)
 
-
 def init_db():
     print("Initializing database...")
     try:
