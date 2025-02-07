@@ -33,7 +33,6 @@ app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
 
 mail = Mail(app)
 
-
 def init_db():
     print("Initializing database...")
     try:
@@ -394,13 +393,13 @@ def check_birthdays():
                     "%m-%d"
                 ):  # user[5] is the birthday
                     celebrants.append(user)
-                    birthday_count += 1  # update birthday variable
-                    message = f"Wishing a joyful birthday to you, {user[0].strip()}, our melody-making friend!❤️️ \nYour beautiful voice and uplifting spirit bring so much joy to our rehearsals and performances. May this special day be filled with love, music, and all the things that bring smile to your face. Keep shining bright like the star you are!🌟 Enjoy every moment and have a melodious birthday!🎶\n🎈#HappyBirthday{user[0].replace(' ', '')}"
-                    print(f"Sending birthday message to: {user[4]}")  # Debug statement
-                    send_email_notification(
-                        "Birthdays are special! 🎂", message, user[4]
-                    )
-
+                    birthday_count +=1 #update birthday variable
+                    if "Okechukwu" in user[0] or "Chinenye" in user [0] or "Francisca" in user[0]:
+                        message = (f"Wishing a joyful birthday to you, {user[0].strip()}, our melody-making friend!❤️️ \nYour beautiful voice and uplifting spirit bring so much joy to our rehearsals and performances. May this special day be filled with love, music, and all the things that bring smile to your face. Keep shining bright like the star you are!🌟 Enjoy every moment and have a melodious birthday!🎶\n🎈#HappyBirthday{user[0].replace(' ', '')}\n\n\nHappy Birthday Nenye🤍")
+                    else:
+                        message = (f"Wishing a joyful birthday to you, {user[0].strip()}, our melody-making friend!❤️️ \nYour beautiful voice and uplifting spirit bring so much joy to our rehearsals and performances. May this special day be filled with love, music, and all the things that bring smile to your face. Keep shining bright like the star you are!🌟 Enjoy every moment and have a melodious birthday!🎶\n🎈#HappyBirthday{user[0].replace(' ', '')}")
+                    send_email_notification("Birthdays are special! 🎂", message, user[4])     
+                    
             if birthday_count > 0:
                 celebrant_names = (
                     ", ".join([user[0].strip() for user in celebrants[:-1]])
